@@ -13,10 +13,15 @@ function Movies(props) {
         setMovies(newMovies);
     }
 
+    function handleDelete(movie) {
+        const newMovies = [...movies].filter((m) => m._id !== movie._id);
+        setMovies(newMovies);
+    }
+
     return (
         <div>
             <table className="table table-hover">
-                <thead>
+                <thead className=" user-select-none">
                     <tr>
                         <th>Name</th>
                         <th>Genre</th>
@@ -39,7 +44,17 @@ function Movies(props) {
                                     onLike={() => handleLike(movie)}
                                 />
                             </td>
-                            <td>Delete</td>
+                            <td>
+                                <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => handleDelete(movie)}
+                                >
+                                    <i
+                                        className="fa fa-trash-o"
+                                        aria-hidden="true"
+                                    ></i>
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
