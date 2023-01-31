@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import Like from "./Like";
+import Like from "./common/Like";
 import { getMovies } from "../services/fakeMovieService";
+import Paginate from "./common/Paginate";
+import _ from "lodash";
 
 function Movies(props) {
     const [movies, setMovies] = useState(getMovies());
+    const [pageSize] = useState(4);
+    const [currentPage, setCurrentPage] = useState(1);
 
     function handleLike(movie) {
         const newMovies = [...movies];
@@ -17,6 +21,21 @@ function Movies(props) {
         const newMovies = [...movies].filter((m) => m._id !== movie._id);
         setMovies(newMovies);
     }
+
+    function handlePageChange(page) {
+        setCurrentPage(page);
+    }
+
+    function getMoviesToRender() {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = currentPage * pageSize;
+        const moviesToRender = _.slice(movies, startIndex, endIndex);
+        if (moviesToRender.length === 0 && currentPage > 0)
+            setCurrentPage(currentPage - 1);
+        return moviesToRender;
+    }
+
+    const moviesToRender = getMoviesToRender();
 
     return (
         <div>
@@ -32,7 +51,7 @@ function Movies(props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {movies.map((movie) => (
+                    {moviesToRender.map((movie) => (
                         <tr key={movie._id}>
                             <td>{movie.title}</td>
                             <td>{movie.genre.name}</td>
@@ -59,6 +78,12 @@ function Movies(props) {
                     ))}
                 </tbody>
             </table>
+            <Paginate
+                totalItems={movies.length}
+                pageSize={pageSize}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 }
