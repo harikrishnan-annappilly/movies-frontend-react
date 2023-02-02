@@ -5,7 +5,7 @@ import Movies from "./components/Movies";
 
 function App() {
     return (
-        <div className="container mt-2">
+        <div className="container mt-3">
             <Movies />
         </div>
     );
