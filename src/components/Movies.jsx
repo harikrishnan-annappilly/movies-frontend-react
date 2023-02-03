@@ -42,16 +42,20 @@ function Movies(props) {
     ]);
 
     function handleLike(movie) {
-        const newMovies = [...movies];
-        const movieIndex = newMovies.indexOf(movie);
-        newMovies[movieIndex] = { ...newMovies[movieIndex] };
-        newMovies[movieIndex].liked = !newMovies[movieIndex].liked;
-        setMovies(newMovies);
+        setMovies((movies) => {
+            const newMovies = [...movies];
+            const movieIndex = newMovies.indexOf(movie);
+            newMovies[movieIndex] = { ...newMovies[movieIndex] };
+            newMovies[movieIndex].liked = !newMovies[movieIndex].liked;
+            return newMovies;
+        });
     }
 
     function handleDelete(movie) {
-        const newMovies = [...movies].filter((m) => m._id !== movie._id);
-        setMovies(newMovies);
+        setMovies((movies) => {
+            const newMovies = [...movies].filter((m) => m._id !== movie._id);
+            return newMovies;
+        });
     }
 
     function handlePageChange(page) {
