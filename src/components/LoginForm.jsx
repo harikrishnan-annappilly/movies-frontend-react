@@ -9,31 +9,41 @@ function LoginForm(props) {
 
     const [errors, setErrors] = useState({});
 
-    const schema = Joi.object({
-        username: Joi.string().required().label("Username"),
-        password: Joi.string().required().label("Password"),
-    });
+    const schema = {
+        username: Joi.string().required().min(3).label("Username"),
+        password: Joi.string().required().min(3).label("Password"),
+    };
 
     function validateEntireForm() {
         const options = { abortEarly: false };
-        const results = schema.validate(user, options);
-        return results;
+        const results = Joi.object(schema).validate(user, options);
+        return results.error ? results : null;
+    }
+
+    function validateSingleInput(input) {
+        const inputName = input.currentTarget.name;
+        const inputValue = input.currentTarget.value;
+        const singleSchema = { [inputName]: schema[inputName] };
+        const userObject = { [inputName]: inputValue };
+        const results = Joi.object(singleSchema).validate(userObject);
+        return results.error ? results : null;
     }
 
     function handleFormSubmit(form) {
         form.preventDefault();
         const results = validateEntireForm();
-        if (results.error) {
-            const cloneErrors = {};
+        const cloneErrors = {};
+        let hasErrors = false;
+        if (results) {
+            hasErrors = true;
             results.error.details.map((error) => {
                 const message = error.message;
                 const path = error.path[0];
                 cloneErrors[path] = message;
             });
-            setErrors(cloneErrors);
-            return;
         }
-        setErrors({});
+        setErrors(cloneErrors);
+        if (hasErrors) return;
 
         console.log("no error - submit() form");
     }
@@ -41,6 +51,23 @@ function LoginForm(props) {
     function handleInputEnter(input) {
         const cloneUser = { ...user };
         cloneUser[input.currentTarget.name] = input.currentTarget.value;
+
+        const results = validateSingleInput(input);
+        const cloneErrors = { ...errors };
+        let hasErrors = false;
+        if (results) {
+            hasErrors = true;
+            results.error.details.map((error) => {
+                const message = error.message;
+                const path = error.path[0];
+                cloneErrors[path] = message;
+            });
+        } else {
+            delete cloneErrors[input.currentTarget.name];
+        }
+        console.log(cloneErrors);
+        setErrors(cloneErrors);
+
         setUser(cloneUser);
     }
 
@@ -77,7 +104,12 @@ function LoginForm(props) {
                             </div>
                         ) : null}
                     </div>
-                    <button className="btn btn-primary btn-sm">Login</button>
+                    <button
+                        className="btn btn-primary btn-sm"
+                        disabled={validateEntireForm()}
+                    >
+                        Login
+                    </button>
                 </form>
             </div>
         </div>
