@@ -18,6 +18,7 @@ function Movies(props) {
     const [currentPage, setCurrentPage] = useState(1);
     const [currentSortColumn, setCurrentSortColumn] =
         useState(defaultSortColumn);
+    const [searchQuery, setSearchQuery] = useState("");
     const [columns, setColumn] = useState([
         { path: "title", label: "Title" },
         { path: "genre.name", label: "Genre" },
@@ -66,8 +67,9 @@ function Movies(props) {
     }
 
     function handleGenreChange(genre) {
-        setSelectedGenre(genre);
         setCurrentPage(1);
+        setSearchQuery("");
+        setSelectedGenre(genre);
     }
 
     function handleSortClick(column) {
@@ -82,7 +84,18 @@ function Movies(props) {
         setCurrentSortColumn(newSortColumn);
     }
 
+    function handleSearch(e) {
+        setCurrentPage(1);
+        setSelectedGenre(defaultGenre);
+        setSearchQuery(e.currentTarget.value);
+    }
+
     function getMoviesFromSelectedGenre(movies, genre) {
+        if (searchQuery) {
+            return movies.filter((m) =>
+                m.title.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
         if (genre._id === defaultGenre._id) return movies;
         const moviesWithSelectedGenre = movies.filter(
             (movie) => movie.genre._id === genre._id
@@ -125,6 +138,17 @@ function Movies(props) {
                         {totalMoviesCount}
                     </span>{" "}
                     movie(s) in the list
+                </div>
+                <div>
+                    <div className="mb-3">
+                        <input
+                            type="text"
+                            className="form-control w-50"
+                            placeholder="Search..."
+                            onChange={handleSearch}
+                            onFocus={handleSearch}
+                        />
+                    </div>
                 </div>
                 <table className="table table-hover">
                     <TableHeader

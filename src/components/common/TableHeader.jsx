@@ -16,7 +16,7 @@ function TableHeader(props) {
                     aria-hidden="true"
                 ></i>
             );
-        return <i className="fa fa-sort" aria-hidden="true"></i>;
+        return <i className="fa fa-sort text-secondary" aria-hidden="true"></i>;
     }
 
     return (
