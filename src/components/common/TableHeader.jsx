@@ -1,13 +1,18 @@
 import React from "react";
 
 function TableHeader(props) {
-    const columns = props.columns;
-
+    const { columns, onSortClick } = props;
     return (
         <thead className="user-select-none">
             <tr>
                 {columns.map((column) => (
-                    <th key={column.path}>{column.label}</th>
+                    <th
+                        key={column.key || column.path}
+                        className="clickable"
+                        onClick={column.path ? () => onSortClick(column) : null}
+                    >
+                        {column.label}
+                    </th>
                 ))}
             </tr>
         </thead>

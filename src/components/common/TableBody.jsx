@@ -10,7 +10,7 @@ function TableBody(props) {
             {data.map((movie) => (
                 <tr key={movie._id}>
                     {columns.map((column) => (
-                        <td key={column.path}>
+                        <td key={(column.key || column.path) + movie._id}>
                             {column.content
                                 ? column.content(movie)
                                 : _.get(movie, column.path)}

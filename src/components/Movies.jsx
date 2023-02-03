@@ -10,25 +10,28 @@ import TableBody from "./common/TableBody";
 
 function Movies(props) {
     const defaultGenre = { _id: "", name: "All" };
+    const defaultSortColumn = { path: "title", order: "asc" };
     const [movies, setMovies] = useState(getMovies());
     const [genres] = useState([defaultGenre, ...getGenres()]);
     const [selectedGenre, setSelectedGenre] = useState(defaultGenre);
     const [pageSize] = useState(4);
     const [currentPage, setCurrentPage] = useState(1);
+    const [currentSortColumn, setCurrentSortColumn] =
+        useState(defaultSortColumn);
     const [columns, setColumn] = useState([
         { path: "title", label: "Title" },
         { path: "genre.name", label: "Genre" },
         { path: "numberInStock", label: "Stock" },
         { path: "dailyRentalRate", label: "Rate" },
         {
-            path: "5",
+            key: "like",
             label: "Like",
             content: (movie) => (
                 <Like liked={movie.liked} onLike={() => handleLike(movie)} />
             ),
         },
         {
-            path: "6",
+            key: "delete",
             label: "Delete",
             content: (movie) => (
                 <button
@@ -64,6 +67,19 @@ function Movies(props) {
 
     function handleGenreChange(genre) {
         setSelectedGenre(genre);
+        setCurrentPage(1);
+    }
+
+    function handleSortClick(column) {
+        const newSortColumn = { ...currentSortColumn };
+        if (newSortColumn.path === column.path) {
+            newSortColumn.order =
+                newSortColumn.order === "asc" ? "desc" : "asc";
+        } else {
+            newSortColumn.path = column.path;
+            newSortColumn.order = "asc";
+        }
+        setCurrentSortColumn(newSortColumn);
     }
 
     function getMoviesFromSelectedGenre(movies, genre) {
@@ -83,10 +99,15 @@ function Movies(props) {
         return moviesToRender;
     }
 
+    function getSortedMovies(movies, sortColumn) {
+        return _.orderBy(movies, [sortColumn.path], [sortColumn.order]);
+    }
+
     const filteredMovies = getMoviesFromSelectedGenre(movies, selectedGenre);
+    const sortedMovies = getSortedMovies(filteredMovies, currentSortColumn);
     const totalMoviesCount = filteredMovies.length;
 
-    const moviesToRender = getMoviesToRender(filteredMovies);
+    const moviesToRender = getMoviesToRender(sortedMovies);
 
     return (
         <div className="row">
@@ -106,7 +127,10 @@ function Movies(props) {
                     movie(s) in the list
                 </div>
                 <table className="table table-hover">
-                    <TableHeader columns={columns} />
+                    <TableHeader
+                        columns={columns}
+                        onSortClick={handleSortClick}
+                    />
                     <TableBody
                         data={moviesToRender}
                         columns={columns}
