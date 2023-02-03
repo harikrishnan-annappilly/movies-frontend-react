@@ -129,6 +129,7 @@ function Movies(props) {
                 <table className="table table-hover">
                     <TableHeader
                         columns={columns}
+                        currentSortColumn={currentSortColumn}
                         onSortClick={handleSortClick}
                     />
                     <TableBody
