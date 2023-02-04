@@ -7,6 +7,7 @@ import _ from "lodash";
 import ListGroup from "./common/ListGroup";
 import TableHeader from "./common/TableHeader";
 import TableBody from "./common/TableBody";
+import { NavLink } from "react-router-dom";
 
 function Movies(props) {
     const defaultGenre = { _id: "", name: "All" };
@@ -20,7 +21,15 @@ function Movies(props) {
         useState(defaultSortColumn);
     const [searchQuery, setSearchQuery] = useState("");
     const [columns, setColumn] = useState([
-        { path: "title", label: "Title" },
+        {
+            path: "title",
+            label: "Title",
+            content: (movie) => {
+                return (
+                    <NavLink to={"/movies/" + movie._id}>{movie.title}</NavLink>
+                );
+            },
+        },
         { path: "genre.name", label: "Genre" },
         { path: "numberInStock", label: "Stock" },
         { path: "dailyRentalRate", label: "Rate" },

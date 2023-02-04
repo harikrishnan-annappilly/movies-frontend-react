@@ -65,7 +65,6 @@ function LoginForm(props) {
         } else {
             delete cloneErrors[input.currentTarget.name];
         }
-        console.log(cloneErrors);
         setErrors(cloneErrors);
 
         setUser(cloneUser);
@@ -83,6 +82,7 @@ function LoginForm(props) {
                             className="form-control"
                             name="username"
                             onChange={handleInputEnter}
+                            onBlur={handleInputEnter}
                         />
                         {errors.username ? (
                             <div className="alert alert-danger">
@@ -97,6 +97,7 @@ function LoginForm(props) {
                             className="form-control"
                             name="password"
                             onChange={handleInputEnter}
+                            onBlur={handleInputEnter}
                         />
                         {errors.password ? (
                             <div className="alert alert-danger">
@@ -105,7 +106,12 @@ function LoginForm(props) {
                         ) : null}
                     </div>
                     <button
-                        className="btn btn-primary btn-sm"
+                        className={
+                            "btn btn-sm" +
+                            (validateEntireForm()
+                                ? " btn-danger"
+                                : " btn-primary")
+                        }
                         disabled={validateEntireForm()}
                     >
                         Login
