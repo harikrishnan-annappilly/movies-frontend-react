@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Joi from "joi";
+import Input from "./common/Input";
 
 function LoginForm(props) {
     const [user, setUser] = useState({
@@ -46,6 +47,7 @@ function LoginForm(props) {
         if (hasErrors) return;
 
         console.log("no error - submit() form");
+        console.log("user{} = ", user);
     }
 
     function handleInputEnter(input) {
@@ -71,52 +73,48 @@ function LoginForm(props) {
     }
 
     return (
-        <div className="row">
-            <h2>Login Form</h2>
-            <div className="col-6">
-                <form autoComplete="off" onSubmit={handleFormSubmit}>
-                    <div className="mb-3">
-                        <label className="form-label">Username</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="username"
-                            onChange={handleInputEnter}
-                            onBlur={handleInputEnter}
-                        />
-                        {errors.username ? (
-                            <div className="alert alert-danger">
-                                {errors.username}
-                            </div>
-                        ) : null}
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Password</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="password"
-                            onChange={handleInputEnter}
-                            onBlur={handleInputEnter}
-                        />
-                        {errors.password ? (
-                            <div className="alert alert-danger">
-                                {errors.password}
-                            </div>
-                        ) : null}
-                    </div>
-                    <button
-                        className={
-                            "btn btn-sm" +
-                            (validateEntireForm()
-                                ? " btn-danger"
-                                : " btn-primary")
-                        }
-                        disabled={validateEntireForm()}
-                    >
-                        Login
-                    </button>
-                </form>
+        <div>
+            <div className="row">
+                <div className="col">
+                    <h2>Login Form</h2>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-6">
+                    <form autoComplete="off" onSubmit={handleFormSubmit}>
+                        <div className="mb-3">
+                            <Input
+                                name={"username"}
+                                label={"Username"}
+                                type="text"
+                                onChange={handleInputEnter}
+                                error={errors.username ? errors.username : null}
+                                value={user.username}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <Input
+                                name={"password"}
+                                label={"Password"}
+                                type="password"
+                                onChange={handleInputEnter}
+                                error={errors.password ? errors.password : null}
+                                value={user.password}
+                            />
+                        </div>
+                        <button
+                            className={
+                                "btn btn-sm" +
+                                (validateEntireForm()
+                                    ? " btn-danger"
+                                    : " btn-primary")
+                            }
+                            disabled={validateEntireForm()}
+                        >
+                            Login
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );
