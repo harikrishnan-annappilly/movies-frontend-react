@@ -18,6 +18,7 @@ function MovieForm(props) {
         genreId: Joi.string().required().label("Genre ID"),
         dailyRentalRate: Joi.number().label("Rate"),
         numberInStock: Joi.number().integer().label("Stock"),
+        liked: Joi.boolean().required(),
     };
 
     const navigate = useNavigate();
@@ -36,6 +37,7 @@ function MovieForm(props) {
                 genreId: "",
                 dailyRentalRate: "",
                 numberInStock: "",
+                liked: false,
             };
         const movieInDb = getMovie(movieId);
         if (movieInDb) {
@@ -45,6 +47,7 @@ function MovieForm(props) {
                 genreId: movieInDb.genre._id,
                 dailyRentalRate: movieInDb.dailyRentalRate,
                 numberInStock: movieInDb.numberInStock,
+                liked: movieInDb.liked,
             };
         }
         return false;
@@ -64,7 +67,7 @@ function MovieForm(props) {
         if (!checkErrors()) return;
         const movie = formData.inputs;
         saveMovie(movie);
-        console.log("movie form submited");
+        navigate("/movies", { replace: true });
     }
 
     return (
@@ -92,6 +95,7 @@ function MovieForm(props) {
                             />
                         </div>
                         <div className="mb-3">
+                            <label className="form-label">Genre</label>
                             <select
                                 className="form-select"
                                 aria-label="Default select example"

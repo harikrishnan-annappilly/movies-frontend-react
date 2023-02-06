@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Like from "./common/Like";
-import { getMovies } from "../services/fakeMovieService";
+import { getMovies, saveMovie } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import Paginate from "./common/Paginate";
 import _ from "lodash";
@@ -60,6 +60,8 @@ function Movies(props) {
             const movieIndex = newMovies.indexOf(movie);
             newMovies[movieIndex] = { ...newMovies[movieIndex] };
             newMovies[movieIndex].liked = !newMovies[movieIndex].liked;
+            newMovies[movieIndex].genreId = newMovies[movieIndex].genre._id;
+            saveMovie(newMovies[movieIndex]);
             return newMovies;
         });
     }
