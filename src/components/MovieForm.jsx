@@ -110,22 +110,17 @@ function MovieForm(props) {
     async function checkOnDb(value, name) {
         const { data: moviesFromApi } = await getMoviesFromApi();
 
-        const checkedMovies = moviesFromApi.filter(
-            (m) => m.title.toLowerCase() === value.toLowerCase()
-        );
-        const movieFound = checkedMovies.length;
+        const movieAlreadyPresent = moviesFromApi.filter(
+            (m) =>
+                m.title.toLowerCase() === value.toLowerCase() &&
+                m._id.toString() !== movie._id.toString()
+        ).length;
 
-        if (movieFound) {
-            const movieNotSame =
-                checkedMovies[0]._id.toString() !== movie._id.toString();
-
-            if (movieNotSame) {
-                const message = "movie name " + value + " already taken";
-                const path = name;
-                setStillErors(true);
-                setErrors({ [path]: message });
-                return;
-            }
+        if (movieAlreadyPresent) {
+            const message = "movie name " + value + " already taken";
+            setStillErors(true);
+            setErrors({ [name]: message });
+            return;
         }
         setStillErors(false);
     }
@@ -145,8 +140,6 @@ function MovieForm(props) {
         }
         return null;
     }
-
-    console.log(stillErors);
 
     return (
         <div>
