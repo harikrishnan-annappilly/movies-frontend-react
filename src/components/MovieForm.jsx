@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import useForms from "./common/hooks/useForm";
 import { useNavigate } from "react-router-dom";
 
-import { getMovie } from "../services/fakeMovieService";
+import { getMovie, saveMovie } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import Input from "./common/Input";
 
@@ -14,10 +14,10 @@ function MovieForm(props) {
 
     const schema = {
         _id: Joi.string().required().label("_id"),
-        movieTitle: Joi.string().required().min(3).label("Movie Name"),
+        title: Joi.string().required().min(3).label("Movie Name"),
         genreId: Joi.string().required().label("Genre ID"),
-        rate: Joi.number().label("Rate"),
-        stock: Joi.number().integer().label("Stock"),
+        dailyRentalRate: Joi.number().label("Rate"),
+        numberInStock: Joi.number().integer().label("Stock"),
     };
 
     const navigate = useNavigate();
@@ -32,26 +32,25 @@ function MovieForm(props) {
         if (movieId === "new")
             return {
                 _id: movieId,
-                movieTitle: "",
+                title: "",
                 genreId: "",
-                rate: "",
-                stock: "",
+                dailyRentalRate: "",
+                numberInStock: "",
             };
         const movieInDb = getMovie(movieId);
         if (movieInDb) {
             return {
                 _id: movieInDb._id,
-                movieTitle: movieInDb.title,
+                title: movieInDb.title,
                 genreId: movieInDb.genre._id,
-                rate: movieInDb.dailyRentalRate,
-                stock: movieInDb.numberInStock,
+                dailyRentalRate: movieInDb.dailyRentalRate,
+                numberInStock: movieInDb.numberInStock,
             };
         }
         return false;
     }
 
     useEffect(() => {
-        console.log("useeffect ran", movie);
         if (!movie) navigate("/movies", { replace: true });
     }, [movie]);
 
@@ -63,7 +62,8 @@ function MovieForm(props) {
     function handleFormSubmit(form) {
         form.preventDefault();
         if (!checkErrors()) return;
-        console.log(formData);
+        const movie = formData.inputs;
+        saveMovie(movie);
         console.log("movie form submited");
     }
 
@@ -71,7 +71,7 @@ function MovieForm(props) {
         <div>
             <div className="row">
                 <div className="col">
-                    <h2>Register Form</h2>
+                    <h2>Movie Form</h2>
                 </div>
             </div>
             <div className="row">
@@ -79,16 +79,16 @@ function MovieForm(props) {
                     <form autoComplete="off" onSubmit={handleFormSubmit}>
                         <div className="mb-3">
                             <Input
-                                name={"movieTitle"}
+                                name={"title"}
                                 label={"Movie Name"}
                                 type="text"
                                 onChange={handleChange}
                                 error={
-                                    formData.errors.movieTitle
-                                        ? formData.errors.movieTitle
+                                    formData.errors.title
+                                        ? formData.errors.title
                                         : null
                                 }
-                                value={formData.inputs.movieTitle}
+                                value={formData.inputs.title}
                             />
                         </div>
                         <div className="mb-3">
@@ -120,30 +120,30 @@ function MovieForm(props) {
                         <div className="row">
                             <div className="col mb-3">
                                 <Input
-                                    name={"rate"}
+                                    name={"dailyRentalRate"}
                                     label={"Rate"}
                                     type="text"
                                     onChange={handleChange}
                                     error={
-                                        formData.errors.rate
-                                            ? formData.errors.rate
+                                        formData.errors.dailyRentalRate
+                                            ? formData.errors.dailyRentalRate
                                             : null
                                     }
-                                    value={formData.inputs.rate}
+                                    value={formData.inputs.dailyRentalRate}
                                 />
                             </div>
                             <div className="col mb-3">
                                 <Input
-                                    name={"stock"}
+                                    name={"numberInStock"}
                                     label={"Stock"}
                                     type="text"
                                     onChange={handleChange}
                                     error={
-                                        formData.errors.stock
-                                            ? formData.errors.stock
+                                        formData.errors.numberInStock
+                                            ? formData.errors.numberInStock
                                             : null
                                     }
-                                    value={formData.inputs.stock}
+                                    value={formData.inputs.numberInStock}
                                 />
                             </div>
                         </div>
