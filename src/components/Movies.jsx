@@ -7,7 +7,7 @@ import _ from "lodash";
 import ListGroup from "./common/ListGroup";
 import TableHeader from "./common/TableHeader";
 import TableBody from "./common/TableBody";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 function Movies(props) {
     const defaultGenre = { _id: "", name: "All" };
@@ -150,13 +150,25 @@ function Movies(props) {
                 </div>
                 <div>
                     <div className="mb-3">
-                        <input
-                            type="text"
-                            className="form-control w-50"
-                            placeholder="Search..."
-                            onChange={handleSearch}
-                            onFocus={handleSearch}
-                        />
+                        <div className="row">
+                            <div className="col">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search..."
+                                    onChange={handleSearch}
+                                    onFocus={handleSearch}
+                                />
+                            </div>
+                            <div className="col-3">
+                                <Link
+                                    className="btn btn-primary btn-sm"
+                                    to={"/movies/new"}
+                                >
+                                    Add Movie
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <table className="table table-hover">
