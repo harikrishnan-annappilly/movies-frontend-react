@@ -8,15 +8,21 @@ import ListGroup from "./common/ListGroup";
 import TableHeader from "./common/TableHeader";
 import TableBody from "./common/TableBody";
 import { NavLink, Link } from "react-router-dom";
+import { getGenresFromApi } from "../services/genreService";
+import {
+    getMoviesFromApi,
+    deleteMovieFromApi,
+    saveMovieFromApi,
+} from "../services/movieService";
 
-function Movies(props) {
+const Movies = (props) => {
     const defaultGenre = { _id: "", name: "All" };
     const defaultSortColumn = { path: "title", order: "asc" };
-    const [movies, setMovies] = useState(getMovies());
-    const [genres] = useState([defaultGenre, ...getGenres()]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [movies, setMovies] = useState([]);
+    const [genres, setGenres] = useState([defaultGenre]);
     const [selectedGenre, setSelectedGenre] = useState(defaultGenre);
     const [pageSize] = useState(4);
-    const [currentPage, setCurrentPage] = useState(1);
     const [currentSortColumn, setCurrentSortColumn] =
         useState(defaultSortColumn);
     const [searchQuery, setSearchQuery] = useState("");
@@ -61,17 +67,25 @@ function Movies(props) {
             newMovies[movieIndex] = { ...newMovies[movieIndex] };
             newMovies[movieIndex].liked = !newMovies[movieIndex].liked;
             newMovies[movieIndex].genreId = newMovies[movieIndex].genre._id;
-            saveMovie(newMovies[movieIndex]);
+            saveMovieFromApi(newMovies[movieIndex]);
             return newMovies;
         });
     }
 
-    function handleDelete(movie) {
+    const handleDelete = async (movie) => {
         setMovies((movies) => {
             const newMovies = [...movies].filter((m) => m._id !== movie._id);
             return newMovies;
         });
-    }
+        const { data: originalMovies } = await getMoviesFromApi();
+        try {
+            const response = await deleteMovieFromApi(movie._id);
+            console.log("movie deleted");
+        } catch (ex) {
+            setMovies(originalMovies);
+            console.log("movies has been reset");
+        }
+    };
 
     function handlePageChange(page) {
         setCurrentPage(page);
@@ -118,7 +132,7 @@ function Movies(props) {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = currentPage * pageSize;
         const moviesToRender = _.slice(movies, startIndex, endIndex);
-        if (moviesToRender.length === 0 && currentPage > 0)
+        if (moviesToRender.length === 0 && currentPage > 1)
             setCurrentPage(currentPage - 1);
         return moviesToRender;
     }
@@ -132,6 +146,23 @@ function Movies(props) {
     const totalMoviesCount = filteredMovies.length;
 
     const moviesToRender = getMoviesToRender(sortedMovies);
+
+    async function initGenres() {
+        const data = await getGenresFromApi();
+        setGenres([defaultGenre, ...data.data]);
+    }
+
+    async function initMovies() {
+        const data = await getMoviesFromApi();
+        setMovies(data.data);
+    }
+
+    useEffect(() => {
+        initGenres();
+        initMovies();
+    }, []);
+
+    console.log("rendering");
 
     return (
         <div className="row">
@@ -195,6 +226,6 @@ function Movies(props) {
             </div>
         </div>
     );
-}
+};
 
 export default Movies;
