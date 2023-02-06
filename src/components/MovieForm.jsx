@@ -2,7 +2,11 @@ import Joi from "joi";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { getMovieFromApi, saveMovieFromApi } from "../services/movieService";
+import {
+    getMovieFromApi,
+    saveMovieFromApi,
+    getMoviesFromApi,
+} from "../services/movieService";
 import { getGenresFromApi } from "../services/genreService";
 import Input from "./common/Input";
 
@@ -13,6 +17,8 @@ function MovieForm(props) {
     const [movie, setMovie] = useState({});
     const [errors, setErrors] = useState({});
     const [genres, setGenres] = useState([]);
+    const [saving, setSaving] = useState(false);
+    const [stillErors, setStillErors] = useState(false);
 
     const schema = {
         _id: Joi.string().required().label("_id"),
@@ -69,11 +75,12 @@ function MovieForm(props) {
         setGenres(mappedGenres);
     }
 
-    function handleFormSubmit(form) {
+    async function handleFormSubmit(form) {
         form.preventDefault();
         const errors = getErrors();
         if (errors) return setErrors(errors);
-        saveMovieFromApi(movie);
+        setSaving(true);
+        await saveMovieFromApi(movie);
         navigate("/movies", { replace: true });
     }
 
@@ -97,6 +104,30 @@ function MovieForm(props) {
         }
         setMovie(newMovie);
         setErrors(cloneErrors);
+        checkOnDb(value, name);
+    }
+
+    async function checkOnDb(value, name) {
+        const { data: moviesFromApi } = await getMoviesFromApi();
+
+        const checkedMovies = moviesFromApi.filter(
+            (m) => m.title.toLowerCase() === value.toLowerCase()
+        );
+        const movieFound = checkedMovies.length;
+
+        if (movieFound) {
+            const movieNotSame =
+                checkedMovies[0]._id.toString() !== movie._id.toString();
+
+            if (movieNotSame) {
+                const message = "movie name " + value + " already taken";
+                const path = name;
+                setStillErors(true);
+                setErrors({ [path]: message });
+                return;
+            }
+        }
+        setStillErors(false);
     }
 
     function getErrors() {
@@ -114,6 +145,8 @@ function MovieForm(props) {
         }
         return null;
     }
+
+    console.log(stillErors);
 
     return (
         <div>
@@ -187,11 +220,23 @@ function MovieForm(props) {
                         <button
                             className={
                                 "btn btn-sm" +
-                                (getErrors() ? " btn-danger" : " btn-success")
+                                (getErrors()
+                                    ? " btn-danger"
+                                    : saving
+                                    ? " btn-warning"
+                                    : " btn-success")
                             }
-                            disabled={getErrors()}
+                            disabled={getErrors() || stillErors || saving}
                         >
-                            Register
+                            Register{" "}
+                            {saving ? (
+                                <div
+                                    className="spinner-border spinner-border-sm"
+                                    role="status"
+                                >
+                                    <span className="sr-only">S...</span>
+                                </div>
+                            ) : null}
                         </button>
                     </form>
                 </div>
