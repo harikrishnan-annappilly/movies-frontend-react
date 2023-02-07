@@ -14,6 +14,7 @@ import {
     deleteMovieFromApi,
     saveMovieFromApi,
 } from "../services/movieService";
+import { isLoggedIn } from "../services/authService";
 
 const Movies = (props) => {
     const defaultGenre = { _id: "", name: "All" };
@@ -44,18 +45,6 @@ const Movies = (props) => {
             label: "Like",
             content: (movie) => (
                 <Like liked={movie.liked} onLike={() => handleLike(movie)} />
-            ),
-        },
-        {
-            key: "delete",
-            label: "Delete",
-            content: (movie) => (
-                <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(movie)}
-                >
-                    <i className="fa fa-trash-o" aria-hidden="true"></i>
-                </button>
             ),
         },
     ]);
@@ -160,6 +149,21 @@ const Movies = (props) => {
     useEffect(() => {
         initGenres();
         initMovies();
+        if (isLoggedIn()) {
+            const del = {
+                key: "delete",
+                label: "Delete",
+                content: (movie) => (
+                    <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(movie)}
+                    >
+                        <i className="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                ),
+            };
+            setColumn([...columns, del]);
+        }
     }, []);
 
     return (

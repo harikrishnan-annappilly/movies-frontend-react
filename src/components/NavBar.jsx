@@ -1,5 +1,6 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { NavLink } from "react-router-dom";
+import { isLoggedIn } from "../services/authService";
 
 function NavBar(props) {
     return (
@@ -18,12 +19,23 @@ function NavBar(props) {
                             >
                                 Movies
                             </NavLink>
-                            <NavLink className="nav-link" to="/login">
-                                Login
-                            </NavLink>
-                            <NavLink className="nav-link" to="/register">
-                                Register
-                            </NavLink>
+                            {!isLoggedIn() ? (
+                                <Fragment>
+                                    <NavLink className="nav-link" to="/login">
+                                        Login
+                                    </NavLink>
+                                    <NavLink
+                                        className="nav-link"
+                                        to="/register"
+                                    >
+                                        Register
+                                    </NavLink>
+                                </Fragment>
+                            ) : (
+                                <NavLink className="nav-link" to="/logout">
+                                    Logout
+                                </NavLink>
+                            )}
                         </div>
                     </div>
                 </div>

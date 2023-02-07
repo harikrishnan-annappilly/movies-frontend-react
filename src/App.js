@@ -8,6 +8,7 @@ import NavBar from "./components/NavBar";
 import LoginForm from "./components/LoginForm";
 import MovieForm from "./components/MovieForm";
 import RegisterForm from "./components/RegisterForm";
+import Logout from "./components/Logout";
 
 function App() {
     return (
@@ -16,14 +17,16 @@ function App() {
             <div className="container mt-3">
                 <Routes>
                     <Route path="/login" element={<LoginForm />} />
+                    <Route path="/Logout" element={<Logout />} />
                     <Route path="/register" element={<RegisterForm />} />
                     <Route path="/movies" element={<Movies />} />
                     <Route path="/movies/:id" element={<MovieForm />} />
+                    <Route path="/404" element={<NotFound />} />
                     <Route
                         path="/"
                         element={<Navigate replace={true} to="/movies" />}
                     />
-                    <Route path="*" element={<NotFound to={"/"} />} />
+                    <Route path="*" element={<NotFound to={"/404"} />} />
                 </Routes>
             </div>
         </div>

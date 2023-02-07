@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Joi from "joi";
 import Input from "./common/Input";
+import { loginUserFromApi } from "../services/authService";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 function LoginForm(props) {
     const [user, setUser] = useState({
@@ -8,7 +10,11 @@ function LoginForm(props) {
         password: "",
     });
 
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [errors, setErrors] = useState({});
+    const [submit, setSubmit] = useState({ enabled: true, value: "Login" });
 
     const schema = {
         username: Joi.string().required().min(3).label("Username"),
@@ -48,6 +54,26 @@ function LoginForm(props) {
 
         console.log("no error - submit() form");
         console.log("user{} = ", user);
+        tryLogin();
+    }
+
+    async function tryLogin() {
+        console.log("Login in...");
+        setSubmit({ ...submit, enabled: false, value: "Loading..." });
+        try {
+            const { data: response } = await loginUserFromApi(
+                user.username,
+                user.password
+            );
+            localStorage.setItem("token", response.access_toke);
+            console.log("Login Success");
+            setSubmit({ ...submit, enabled: true, value: "Success" });
+            window.location = location.state?.setLocation || "/movies";
+        } catch (ex) {
+            localStorage.removeItem("token");
+            console.log("Login Failed");
+            setSubmit({ ...submit, enabled: true, value: "Login" });
+        }
     }
 
     function handleInputEnter(input) {
@@ -109,9 +135,9 @@ function LoginForm(props) {
                                     ? " btn-danger"
                                     : " btn-primary")
                             }
-                            disabled={validateEntireForm()}
+                            disabled={validateEntireForm() || !submit.enabled}
                         >
-                            Login
+                            {submit.value}
                         </button>
                     </form>
                 </div>

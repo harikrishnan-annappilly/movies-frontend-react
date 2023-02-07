@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import useForms from "./common/hooks/useForm";
 import Joi from "joi";
 import Input from "./common/Input";
+import { registerUser } from "../services/userService";
+import { useNavigate } from "react-router-dom";
 
 function RegisterForm(props) {
-    const user = {
+    const initialUser = {
         username: "",
         password: "",
         contact: "",
@@ -20,16 +22,52 @@ function RegisterForm(props) {
             .label("Contact"),
     };
 
-    const [formData, handleChange, validateForm, isFormValid] = useForms(
-        user,
-        schema
-    );
+    const [user, setUser] = useState(initialUser);
+    const [errors, setErrors] = useState({});
+    const [isSubmitValid, setIsSubmitValid] = useState(true);
+    const [submitValue, setSubmitValue] = useState("Register");
+    const navigate = useNavigate();
 
-    function handleFormSubmit(form) {
+    async function handleFormSubmit(form) {
         form.preventDefault();
-        if (!validateForm()) return false;
-        console.log(formData);
-        console.log("form submitted");
+        console.log(user);
+        const result = validateForm();
+        if (result) {
+            setErrors(result);
+            return;
+        } else {
+            setIsSubmitValid(false);
+            setSubmitValue("Saving...");
+        }
+        setErrors({});
+        console.log("form is valid");
+        await registerUser(user);
+        setIsSubmitValid(true);
+        setSubmitValue("Register");
+        setUser(initialUser);
+        navigate("/login", { replace: true });
+    }
+
+    function handleChange(input) {
+        const name = input.currentTarget.name;
+        const value = input.currentTarget.value;
+        setUser({ ...user, [name]: value });
+    }
+
+    function validateForm() {
+        const option = { abortEarly: false };
+        const result = Joi.object(schema).validate(user, option);
+        if (result.error) {
+            const { details } = result.error;
+            const cloneErrors = {};
+            details.map((error) => {
+                const path = error.path[0];
+                const message = error.message;
+                cloneErrors[path] = message;
+            });
+            return cloneErrors;
+        }
+        return null;
     }
 
     return (
@@ -48,12 +86,8 @@ function RegisterForm(props) {
                                 label={"Username"}
                                 type="text"
                                 onChange={handleChange}
-                                error={
-                                    formData.errors.username
-                                        ? formData.errors.username
-                                        : null
-                                }
-                                value={formData.inputs.username}
+                                error={errors.username ? errors.username : null}
+                                value={user.username}
                             />
                         </div>
                         <div className="mb-3">
@@ -62,12 +96,8 @@ function RegisterForm(props) {
                                 label={"Password"}
                                 type="password"
                                 onChange={handleChange}
-                                error={
-                                    formData.errors.password
-                                        ? formData.errors.password
-                                        : null
-                                }
-                                value={formData.inputs.password}
+                                error={errors.password ? errors.password : null}
+                                value={user.password}
                             />
                         </div>
                         <div className="mb-3">
@@ -76,22 +106,18 @@ function RegisterForm(props) {
                                 label={"Contact"}
                                 type="contact"
                                 onChange={handleChange}
-                                error={
-                                    formData.errors.contact
-                                        ? formData.errors.contact
-                                        : null
-                                }
-                                value={formData.inputs.contact}
+                                error={errors.contact ? errors.contact : null}
+                                value={user.contact}
                             />
                         </div>
                         <button
                             className={
                                 "btn btn-sm" +
-                                (isFormValid() ? " btn-danger" : " btn-success")
+                                (isSubmitValid ? " btn-danger" : " btn-success")
                             }
-                            disabled={isFormValid()}
+                            disabled={!isSubmitValid}
                         >
-                            Register
+                            {submitValue}
                         </button>
                     </form>
                 </div>

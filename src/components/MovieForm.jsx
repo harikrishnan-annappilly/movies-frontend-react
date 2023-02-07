@@ -1,6 +1,6 @@
 import Joi from "joi";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
     getMovieFromApi,
@@ -9,6 +9,7 @@ import {
 } from "../services/movieService";
 import { getGenresFromApi } from "../services/genreService";
 import Input from "./common/Input";
+import { isLoggedIn } from "../services/authService";
 
 function MovieForm(props) {
     const params = useParams();
@@ -19,6 +20,7 @@ function MovieForm(props) {
     const [genres, setGenres] = useState([]);
     const [saving, setSaving] = useState(false);
     const [stillErors, setStillErors] = useState(false);
+    const location = useLocation();
 
     const schema = {
         _id: Joi.string().required().label("_id"),
@@ -32,10 +34,14 @@ function MovieForm(props) {
     useEffect(() => {
         populateGenres();
         populateMovie(movieId);
+        if (!isLoggedIn()) {
+            navigate("/login", { state: { setLocation: location.pathname } });
+        } else {
+        }
     }, []);
 
     useEffect(() => {
-        if (!movie) navigate("/movies", { replace: true });
+        if (!movie) navigate("/404", { replace: true });
     }, [movie]);
 
     async function populateMovie(movieId) {
@@ -221,15 +227,19 @@ function MovieForm(props) {
                             }
                             disabled={getErrors() || stillErors || saving}
                         >
-                            Register{" "}
                             {saving ? (
-                                <div
-                                    className="spinner-border spinner-border-sm"
-                                    role="status"
-                                >
-                                    <span className="sr-only">S...</span>
+                                <div>
+                                    <div
+                                        className="spinner-border spinner-border-sm"
+                                        role="status"
+                                    >
+                                        <span className="sr-only">S...</span>
+                                    </div>
+                                    {" Saving..."}
                                 </div>
-                            ) : null}
+                            ) : (
+                                "Register"
+                            )}
                         </button>
                     </form>
                 </div>
